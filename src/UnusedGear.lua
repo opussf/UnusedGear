@@ -67,6 +67,7 @@ function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "MERCHANT_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "SCRAPPING_MACHINE_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "EQUIPMENT_SETS_CHANGED" )
+	UnusedGear_Frame:RegisterEvent( "AUCTION_HOUSE_SHOW" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
 
@@ -80,6 +81,7 @@ function UnusedGear.MERCHANT_SHOW()
 	UnusedGear.ExtractItems()
 end
 UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
+UnusedGear.AUCTION_HOUSE_SHOW = UnusedGear.MERCHANT_SHOW
 
 function UnusedGear.EQUIPMENT_SETS_CHANGED()
 	--UnusedGear.Print( "EQUIPMENT_SETS_CHANGED" )
