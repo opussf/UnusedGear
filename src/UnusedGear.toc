@@ -1,0 +1,10 @@
+## Interface: @INTERFACE@
+## Title: Unused Gear
+## Notes: Sort out unused gear. @VERSION@
+## Author: opussf
+## Version: @VERSION@
+## Description: Sort out unused gear. @VERSION@
+## SavedVariables:
+## SavedVariablesPerCharacter:
+UnusedGear.lua
+UnusedGear.xml
