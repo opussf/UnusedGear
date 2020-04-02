@@ -113,7 +113,7 @@ function UnusedGear.ForAllGear( action, message )
 					iID = tonumber( UnusedGear.GetItemIdFromLink( iLink ) )
 					iArmorType = UnusedGear.armorTypes[ iSubType ]
 					--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iType == "Shield" ) ) then
+					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iType == "Shields" ) ) then
 						-- 6 is Legandary, 7 is heirloom
 						if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
 							--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
