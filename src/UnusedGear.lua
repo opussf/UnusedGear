@@ -115,7 +115,7 @@ function UnusedGear.ForAllGear( action, message )
 					--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
 					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iType == "Shield" ) ) then
 						-- 6 is Legandary, 7 is heirloom
-						if( not UnusedGear.itemsInSets[ iID ] ) then
+						if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
 							--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
 							--UnusedGear.Print( "MOVE: "..link )
 							targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
