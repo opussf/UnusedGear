@@ -65,6 +65,7 @@ function UnusedGear.Print( msg, showName)
 end
 function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "MERCHANT_SHOW" )
+	UnusedGear_Frame:RegisterEvent( "SCRAPPING_MACHINE_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "EQUIPMENT_SETS_CHANGED" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
@@ -74,13 +75,14 @@ function UnusedGear.OnLoad()
 end
 
 function UnusedGear.MERCHANT_SHOW()
-	UnusedGear.Print( "MERCHANT_SHOW" )
+	--UnusedGear.Print( "MERCHANT_SHOW" )
 	UnusedGear.BuildGearSets()
 	UnusedGear.ExtractItems()
 end
+UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
 
 function UnusedGear.EQUIPMENT_SETS_CHANGED()
-	UnusedGear.Print( "EQUIPMENT_SETS_CHANGED" )
+	--UnusedGear.Print( "EQUIPMENT_SETS_CHANGED" )
 end
 
 function UnusedGear.BuildGearSets()
@@ -101,6 +103,7 @@ end
 
 function UnusedGear.ForAllGear( action, message )
 	-- work through all the items
+	moveCount = 0
 	for bag = 0, 4 do
 		if GetContainerNumSlots( bag ) > 0 then -- This slot has a bag
 			for slot = 0, GetContainerNumSlots( bag ) do -- work through this bad
@@ -113,7 +116,7 @@ function UnusedGear.ForAllGear( action, message )
 					iID = tonumber( UnusedGear.GetItemIdFromLink( iLink ) )
 					iArmorType = UnusedGear.armorTypes[ iSubType ]
 					--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iType == "Shields" ) ) then
+					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" ) ) then
 						-- 6 is Legandary, 7 is heirloom
 						if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
 							--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
@@ -124,6 +127,7 @@ function UnusedGear.ForAllGear( action, message )
 								PickupContainerItem( bag, slot )
 								if( targetBagID == 0 ) then
 									PutItemInBackpack()
+									moveCount = moveCount + 1
 								else
 									PutItemInBag( targetBagID+19 )
 								end
@@ -133,7 +137,6 @@ function UnusedGear.ForAllGear( action, message )
 				end
 			end
 		end
-
 	end
 end
 
