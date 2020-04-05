@@ -1,0 +1,8 @@
+language: lua
+sudo: false
+addons:
+  apt:
+    packages:
+    - lua5.1
+script: ant clean package
+
