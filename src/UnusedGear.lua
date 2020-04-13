@@ -117,23 +117,29 @@ function UnusedGear.ForAllGear( action, message )
 					iArmorType = nil
 					local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc,
 							iTexture, iSellPrice = GetItemInfo( link )
-					iID = tonumber( UnusedGear.GetItemIdFromLink( iLink ) )
-					iArmorType = UnusedGear.armorTypes[ iSubType ]
-					--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-					if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" ) ) then
-						-- 6 is Legandary, 7 is heirloom
-						if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
-							--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-							--UnusedGear.Print( "MOVE: "..link )
-							targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
-							if( targetBagID ) then
-								ClearCursor()
-								PickupContainerItem( bag, slot )
-								if( targetBagID == 0 ) then
-									PutItemInBackpack()
-									moveCount = moveCount + 1
-								else
-									PutItemInBag( targetBagID+19 )
+					if iLink then
+						--UnusedGear.Print( "iLink: "..iLink )
+						iID = UnusedGear.GetItemIdFromLink( iLink )
+						if iID then
+							iID = tonumber( iID )
+							iArmorType = UnusedGear.armorTypes[ iSubType ]
+							--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
+							if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" ) ) then
+								-- 6 is Legandary, 7 is heirloom
+								if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
+									--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
+									--UnusedGear.Print( "MOVE: "..link )
+									targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
+									if( targetBagID ) then
+										ClearCursor()
+										PickupContainerItem( bag, slot )
+										if( targetBagID == 0 ) then
+											PutItemInBackpack()
+											moveCount = moveCount + 1
+										else
+											PutItemInBag( targetBagID+19 )
+										end
+									end
 								end
 							end
 						end
