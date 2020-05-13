@@ -4,7 +4,7 @@
 ## Author: opussf
 ## Version: @VERSION@
 ## Description: Sort out unused gear. @VERSION@
-## SavedVariables:
+## SavedVariables: UnusedGear_savedata
 ## SavedVariablesPerCharacter:
 UnusedGear.lua
 UnusedGear.xml
