@@ -1,7 +1,7 @@
 -----------------------------------------
 -- Author  :  Opussf
 -- Date    :  $Date:$
--- Revision:  @VERSION@
+-- Revision:  v1.2-16-gd245645
 -----------------------------------------
 -- These are functions from wow that have been needed by addons so far
 -- Not a complete list of the functions.
@@ -1375,7 +1375,9 @@ function ClearAchievementComparisonUnit()
 	-- mostly does nothing...
 end
 function BNSendWhisper( id, msg )
-	-- @TODO: Expand this
+	table.insert( chatLog,
+			{ ["msg"] = msg, ["chatType"] = "BNWhisper", ["language"] = "", ["channel"] = "BNWhisper" }
+	)
 end
 function TaxiNodeCost( nodeId )
 	-- http://www.wowwiki.com/API_TaxiNodeCost
@@ -1541,6 +1543,14 @@ end
 
 ----------
 
+----------
+C_AuctionHouse = {}
+function C_AuctionHouse.PostItem( item, duration, quantity, bid, buyout )
+end
+function C_AuctionHouse.PostCommodity( item, duration, quantity, price )
+end
+
+
 function IsQuestFlaggedCompleted( questID )
 	return nil
 end
@@ -1550,4 +1560,41 @@ C_MountJournal.critters = { ["mount"] = {}, ["critter"] = {} }
 
 function C_MountJournal.GetMountIDs( )
 	return {}
+end
+
+-----------------------------------------
+-- TOC functions
+addonData = {}
+function ParseTOC( tocFile )
+	-- parse the TOC file for ## entries, and lua files to include
+	-- put ## entries in addonData hash - normally hard coded
+	-- require found lua files.
+	local tocFileTable = {}
+	local f = io.open( tocFile, "r" )
+	local tocContents = f:read( "*all" )
+	while true do
+		local linestart, lineend, line = string.find( tocContents, "(.-)\n" )
+		if linestart then
+			local lua, luaEnd, luaFile = string.find( line, "([%a]*)%.lua" )
+			local xml, xmlEnd, xmlFile = string.find( line, "([%a]*)%.xml" )
+			local hash, hashEnd, hashKey, hashValue = string.find( line, "## ([%a]*): (.*)" )
+			if( hash ) then
+				addonData[ hashKey ] = hashValue
+			elseif( lua ) then
+				table.insert( tocFileTable, luaFile )
+			end
+			tocContents = string.sub( tocContents, lineend+1 )
+		else
+			break
+		end
+	end
+	pathSeparator = string.sub(package.config, 1, 1) -- first character of this string (http://www.lua.org/manual/5.2/manual.html#pdf-package.config)
+	includePath = tocFile
+	while( string.sub( includePath, -1, -1 ) ~= pathSeparator ) do
+		includePath = string.sub( includePath, 1, -2 )
+	end
+	package.path = includePath.."?.lua;" .. package.path
+	for _,f in pairs( tocFileTable ) do
+		require( f )
+	end
 end
