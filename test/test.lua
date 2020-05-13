@@ -9,9 +9,7 @@ test.outFileName = "testOut.xml"
 
 -- Figure out how to parse the XML here, until then....
 
--- require the file to test
-package.path = "../src/?.lua;'" .. package.path
-require "UnusedGear"
+ParseTOC( "../src/UnusedGear.toc" )
 
 function test.before()
 	myInventory = { ["7073"] = 52, ["9799"] = 52, ["9999"] = 52, }
