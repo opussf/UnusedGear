@@ -210,7 +210,7 @@ end
 function INEED.hookSetItem(tooltip, ...)  -- is passed the tooltip frame as a table
 	local item, link = tooltip:GetItem()  -- name, link
 	local itemID = INEED.getItemIdFromLink( link )
-
+]]
 --[[
 	local tooltipName = tooltip:GetName()
 	local tooltipLine2 = _G[tooltipName.."TextLeft2"]
