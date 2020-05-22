@@ -20,6 +20,7 @@ UnusedGear_Options = {
 }
 UnusedGear_savedata = {}
 -- itemLog = { link = { log, movedCount, lastMoved } }
+-- ignoreItems = { link = true }
 --[[
 INEED.bindTypes = {
 	[ITEM_SOULBOUND] = "Bound",
@@ -81,6 +82,7 @@ end
 
 function UnusedGear.ADDON_LOADED()
 	-- Unregister the event for this method.
+	UnusedGear.Print( "ADDON_LOADED" )
 	UnusedGear_Frame:UnregisterEvent("ADDON_LOADED")
 
 	GameTooltip:HookScript( "OnTooltipSetItem", UnusedGear.hookSetItem )
@@ -89,8 +91,10 @@ end
 
 function UnusedGear.VARIABLES_LOADED()
 	-- Unregister the event for this method.
+	UnusedGear.Print( "VARIABLES_LOADED" )
 	UnusedGear_Frame:UnregisterEvent( "VARIABLES_LOADED" )
 	UnusedGear_savedata.itemLog = UnusedGear_savedata.itemLog or {}
+	UnusedGear_savedata.ignoreItems = UnusedGear_savedata.ignoreItems or {}
 end
 function UnusedGear.MERCHANT_SHOW()
 	--UnusedGear.Print( "MERCHANT_SHOW" )
@@ -129,46 +133,79 @@ function UnusedGear.ForAllGear( action, message )
 			if not GetBagSlotFlag( bag, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP ) then
 				for slot = 0, GetContainerNumSlots( bag ) do -- work through this bag
 					itemLog = {}
+					moved = false
 					local texture, itemCount, locked, quality, readable, lootable, link =
 							GetContainerItemInfo( bag, slot )
-					if( quality ) then
-						table.insert( itemLog, "Has quality" )
-						iArmorType = nil
-						local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc,
-								iTexture, iSellPrice = GetItemInfo( link )
-						if iLink then
-							table.insert( itemLog, "has iLink" )
-							--UnusedGear.Print( "iLink: "..iLink )
-							iID = UnusedGear.GetItemIdFromLink( iLink )
-							if iID then
-								table.insert( itemLog, "iID:"..iID )
-								iID = tonumber( iID )
-								iArmorType = UnusedGear.armorTypes[ iSubType ]
-								--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-								if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" ) ) then
-									-- 6 is Legandary, 7 is heirloom
-									if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
-										--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-										--UnusedGear.Print( "MOVE: "..link )
-										targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
-										if( targetBagID ) then
-											ClearCursor()
-											PickupContainerItem( bag, slot )
-											if( targetBagID == 0 ) then
-												PutItemInBackpack()
-												moveCount = moveCount + 1
+					if( link and not UnusedGear_savedata.ignoreItems[link] ) then
+						table.insert( itemLog, "Process-->" )
+						if( quality ) then
+							--table.insert( itemLog, "Has quality" )
+							iArmorType = nil
+							local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc,
+									iTexture, iSellPrice = GetItemInfo( link )
+							if iLink then
+								--table.insert( itemLog, "has iLink" )
+								--UnusedGear.Print( "iLink: "..iLink )
+								iID = UnusedGear.GetItemIdFromLink( iLink )
+								if iID then
+									--table.insert( itemLog, "iID:"..iID )
+									iID = tonumber( iID )
+									iArmorType = UnusedGear.armorTypes[ iSubType ]
+									--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
+									if( iRarity < 6 ) then
+										-- 6 is Legandary, 7 is heirloom
+										--table.insert( itemLog, "Rarity<6" )
+										if( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" )  then
+											table.insert( itemLog, ( ( iType == "Armor" and "Armor:"..iArmorType )
+														or ( iType == "Weapon" and "Weapon" )
+														or ( iSubType == "Shields" and "Shield" )
+														or "" ) )
+											if( not UnusedGear.itemsInSets[ iID ] ) then
+												table.insert( itemLog, "not in itemsets" )
+												if( not string.find( iName, "Tabard" ) ) then
+													table.insert( itemLog, "not a Tabard" )
+
+													--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
+													--UnusedGear.Print( "MOVE: "..link )
+													targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
+													if( targetBagID ) then
+														ClearCursor()
+														PickupContainerItem( bag, slot )
+														if( targetBagID == 0 ) then
+															PutItemInBackpack()
+															moveCount = moveCount + 1
+															moved = true
+															table.insert( itemLog, "Moved from "..bag.." to Backpack" )
+														else
+															PutItemInBag( targetBagID+19 )
+														end
+													end
+												end
 											else
-												PutItemInBag( targetBagID+19 )
+												table.insert( itemLog, "in an itemset" )
 											end
+										else
+											table.insert( itemLog, "Not armor, a weapon, or a shield" )
 										end
+									else
+										table.insert( itemLog, "Rarity is too high: "..iRarity )
 									end
+
 								end
 							end
+						else
+							table.insert( itemLog, "NO QUALITY" )
 						end
+					else
+						table.insert( itemLog, "is ignored" )
 					end
 					if( link ) then
-						UnusedGear_savedata.itemLog[link] = UnusedGear_savedata[link] or {}
+						UnusedGear_savedata.itemLog[link] = UnusedGear_savedata.itemLog[link] or { ["countMoved"] = 0 }
 						UnusedGear_savedata.itemLog[link]["log"] = table.concat( itemLog, ", " )
+						if moved then
+							UnusedGear_savedata.itemLog[link]["lastMoved"] = time()
+							UnusedGear_savedata.itemLog[link]["countMoved"] = UnusedGear_savedata.itemLog[link].countMoved + 1
+						end
 					end
 				end
 			end
@@ -200,8 +237,8 @@ function UnusedGear.GetLastFreeSlotInBag( bagID )
 end
 function UnusedGear.hookSetItem( tooltip, ... ) -- is passed the tooltip frame as a table
 	local item, link = tooltip:GetItem()  -- name, link
-	if( UnusedGear_savedata[link] and UnusedGear_savedata[link].log ) then
-		tooltip.AddDoubleLine( UnusedGear_savedata[link].log )
+	if( UnusedGear_savedata.itemLog[link] and UnusedGear_savedata.itemLog[link].log ) then
+		tooltip:AddDoubleLine( UnusedGear_savedata.itemLog[link].log, "Moved:"..UnusedGear_savedata.itemLog[link].countMoved )
 	end
 end
 
