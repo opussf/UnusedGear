@@ -73,6 +73,7 @@ function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "BANKFRAME_OPENED" )
 	UnusedGear_Frame:RegisterEvent( "ADDON_LOADED" )
 	UnusedGear_Frame:RegisterEvent( "VARIABLES_LOADED" )
+	UnusedGear_Frame:RegisterEvent( "PLAYER_LEAVING_WORLD" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
 
@@ -102,6 +103,14 @@ function UnusedGear.VARIABLES_LOADED()
 
 	UnusedGear.myItemLog = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].itemLog
 	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
+end
+
+function UnusedGear.PLAYER_LEAVING_WORLD()
+	for link, item in pairs( UnusedGear.myItemLog ) do
+		if( ( item.lastSeen and item.lastSeen+86400 < time() ) or not item.lastSeen ) then
+			UnusedGear.myItemLog[link] = nil
+		end
+	end
 end
 function UnusedGear.MERCHANT_SHOW()
 	--UnusedGear.Print( "MERCHANT_SHOW" )
@@ -164,8 +173,8 @@ function UnusedGear.ForAllGear( action, message )
 							toMove = toMove and testResult  -- any failure will set this to false
 							testLog = testStruct[ testResult and 2 or 3 ]
 							if testLog then table.insert( itemLog, testStruct[ testResult and 2 or 3 ] ) end
+							--print( test..":"..(toMove and "True" or "False" ) )
 							test = test + 1
-							print( test..":"..(toMove and "True" or "False" ) )
 						end
 					end
 					if toMove then
@@ -188,10 +197,11 @@ function UnusedGear.ForAllGear( action, message )
 						UnusedGear.myItemLog[link] = UnusedGear.myItemLog[link] or { ["countMoved"] = 0 }
 
 						if( UnusedGear.myItemLog[link].countMoved > 20 ) then
-							table.insert( itemLog, "moved many times.\nConsider ignoring this to keep it from moving.")
-							--UnusedGear_savedata.ignoreItems[link] = time()
+							table.insert( itemLog, "moved many times.\nI'm ignoring this item in the future.")
+							UnusedGear_savedata.ignoreItems[link] = time()
 						end
 						UnusedGear.myItemLog[link]["log"] = table.concat( itemLog, "; " )
+						UnusedGear.myItemLog[link]["lastSeen"] = time()
 						if moved then
 							UnusedGear.myItemLog[link]["lastMoved"] = time()
 							UnusedGear.myItemLog[link]["countMoved"] = UnusedGear.myItemLog[link].countMoved + 1
