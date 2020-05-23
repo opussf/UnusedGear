@@ -107,7 +107,7 @@ end
 
 function UnusedGear.PLAYER_LEAVING_WORLD()
 	for link, item in pairs( UnusedGear.myItemLog ) do
-		if( ( item.lastSeen and item.lastSeen+86400 < time() ) or not item.lastSeen ) then
+		if( ( item.lastSeen and item.lastSeen+3600 < time() ) or not item.lastSeen ) then -- one hour expire
 			UnusedGear.myItemLog[link] = nil
 		end
 	end
