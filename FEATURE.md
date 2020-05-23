@@ -1,5 +1,7 @@
 # Feature
 
+## Activity log
+
 ## Ignore bag flag
 
 Don't examine items in the "Ignore this bag" setting.
@@ -20,3 +22,6 @@ Stripper/Notes:LE_BAG_FILTER_FLAG_EQUIPMENT = 2
 Stripper/Notes:LE_BAG_FILTER_FLAG_CONSUMABLES
 Stripper/Notes:LE_BAG_FILTER_FLAG_TRADE_GOODS
 Stripper/Notes:NUM_LE_BAG_FILTER_FLAGS = 5
+
+
+## Auto learn
