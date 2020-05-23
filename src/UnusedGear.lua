@@ -104,7 +104,6 @@ function UnusedGear.VARIABLES_LOADED()
 	UnusedGear.myItemLog = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].itemLog
 	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
 end
-
 function UnusedGear.PLAYER_LEAVING_WORLD()
 	for link, item in pairs( UnusedGear.myItemLog ) do
 		if( ( item.lastSeen and item.lastSeen+3600 < time() ) or not item.lastSeen ) then -- one hour expire
@@ -124,7 +123,6 @@ UnusedGear.BANKFRAME_OPENED = UnusedGear.MERCHANT_SHOW
 function UnusedGear.EQUIPMENT_SETS_CHANGED()
 	--UnusedGear.Print( "EQUIPMENT_SETS_CHANGED" )
 end
-
 function UnusedGear.BuildGearSets()
 	UnusedGear.itemsInSets = {}
 	for setNum = 0, C_EquipmentSet.GetNumEquipmentSets(), 1 do
@@ -212,11 +210,9 @@ function UnusedGear.ForAllGear( action, message )
 		end
 	end
 end
-
 function UnusedGear.ExtractItems()
 	UnusedGear.ForAllGear( "", "" )
 end
-
 function UnusedGear.GetItemIdFromLink( itemLink )
 	-- returns just the integer itemID
 	-- itemLink can be a full link, or just "item:999999999"
@@ -238,47 +234,7 @@ end
 function UnusedGear.hookSetItem( tooltip, ... ) -- is passed the tooltip frame as a table
 	local item, link = tooltip:GetItem()  -- name, link
 	if( UnusedGear.myItemLog[link] and UnusedGear.myItemLog[link].log ) then
-		tooltip:AddDoubleLine( UnusedGear.myItemLog[link].log, "Moved:"..UnusedGear.myItemLog[link].countMoved )
+		tooltip:AddDoubleLine( UnusedGear.myItemLog[link].log,
+				( UnusedGear.myItemLog[link].countMoved > 0 and "Moved:"..UnusedGear.myItemLog[link].countMoved or "" ) )
 	end
 end
-
-
---[[
-function INEED.hookSetItem(tooltip, ...)  -- is passed the tooltip frame as a table
-	local item, link = tooltip:GetItem()  -- name, link
-	local itemID = INEED.getItemIdFromLink( link )
-]]
---[[
-	local tooltipName = tooltip:GetName()
-	local tooltipLine2 = _G[tooltipName.."TextLeft2"]
-	local tooltipLine3 = _G[tooltipName.."TextLeft3"]
-	local tooltipLine4 = _G[tooltipName.."TextLeft4"]
-	local BindTypes = {
-		[ITEM_SOULBOUND] = "Bound",
-		[ITEM_BIND_ON_PICKUP] = "Bound",
-	}
-
-
-	INEED.Print( "tooltip:name = "..( tooltipName or "unknown" ).." "..
-			( ( BindTypes[tooltipLine2:GetText()] or BindTypes[tooltipLine3:GetText()] or BindTypes[tooltipLine4:GetText()] ) and "isBound" or "isNotBound" ) )
-]]
-	-- local ScanTip2 = _G["AppraiserTipTextLeft2"]
-	--.." "..ITEM_SOULBOUND.." "..ITEM_BIND_ON_PICKUP )
-	-- INEED.Print("item: "..(item or "nil").." ID: "..itemID)
---[[
-	if itemID and INEED_data[itemID] then
-		for realm in pairs(INEED_data[itemID]) do
-			if realm == INEED.realm then
-				for name, data in pairs(INEED_data[itemID][realm]) do
-					tooltip:AddDoubleLine(string.format("%s", name),
-							string.format("Needs: %i / %i", data.total + (data.inMail or 0), data.needed) )
-				end
-			end
-		end
-	end
-end
-
-ONLOAD
-
-G
-]]
