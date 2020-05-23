@@ -18,7 +18,9 @@ UnusedGear = {}
 UnusedGear_Options = {
 	["targetBag"] = 0
 }
-
+UnusedGear_savedata = {}
+-- itemLog = { link = { log, movedCount, lastMoved } }
+-- ignoreItems = { link = true }
 --[[
 INEED.bindTypes = {
 	[ITEM_SOULBOUND] = "Bound",
@@ -69,6 +71,9 @@ function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "EQUIPMENT_SETS_CHANGED" )
 	UnusedGear_Frame:RegisterEvent( "AUCTION_HOUSE_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "BANKFRAME_OPENED" )
+	UnusedGear_Frame:RegisterEvent( "ADDON_LOADED" )
+	UnusedGear_Frame:RegisterEvent( "VARIABLES_LOADED" )
+	UnusedGear_Frame:RegisterEvent( "PLAYER_LEAVING_WORLD" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
 
@@ -76,6 +81,37 @@ function UnusedGear.OnLoad()
 	--ap.ForAllJunk();
 end
 
+function UnusedGear.ADDON_LOADED()
+	-- Unregister the event for this method.
+	UnusedGear_Frame:UnregisterEvent("ADDON_LOADED")
+
+	GameTooltip:HookScript( "OnTooltipSetItem", UnusedGear.hookSetItem )
+	ItemRefTooltip:HookScript( "OnTooltipSetItem", UnusedGear.hookSetItem )
+	UnusedGear.name = UnitName("player")
+	UnusedGear.realm = GetRealmName()
+end
+
+function UnusedGear.VARIABLES_LOADED()
+	-- Unregister the event for this method.
+	UnusedGear_Frame:UnregisterEvent( "VARIABLES_LOADED" )
+
+	UnusedGear_savedata[UnusedGear.realm] = UnusedGear_savedata[UnusedGear.realm] or {}
+	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name] = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name] or {}
+
+	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].itemLog = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].itemLog or {}
+	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems or {}
+
+	UnusedGear.myItemLog = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].itemLog
+	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
+end
+
+function UnusedGear.PLAYER_LEAVING_WORLD()
+	for link, item in pairs( UnusedGear.myItemLog ) do
+		if( ( item.lastSeen and item.lastSeen+3600 < time() ) or not item.lastSeen ) then -- one hour expire
+			UnusedGear.myItemLog[link] = nil
+		end
+	end
+end
 function UnusedGear.MERCHANT_SHOW()
 	--UnusedGear.Print( "MERCHANT_SHOW" )
 	UnusedGear.BuildGearSets()
@@ -105,45 +141,70 @@ function UnusedGear.BuildGearSets()
 	end
 end
 
+-- moveTests { testfunction, truthmessage, falsemessage }
+moveTests = {
+	{ function( link ) return not UnusedGear.myIgnoreItems[link]; end, "Not ignored", "Ignored" },
+	{ function( link ) _, _, iRarity = GetItemInfo( link ); return iRarity < 6; end, nil, "Rarity is too high" },
+	{ function( link )
+			_, _, _, _, _, iType, iSubType = GetItemInfo( link )
+			iArmorType = UnusedGear.armorTypes[ iSubType ]
+			return( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" )
+		end, "Armor, weapon, or shield", "non equipable item" },
+	{ function( link ) iID = tonumber( UnusedGear.GetItemIdFromLink( link ) ); return not UnusedGear.itemsInSets[ iID ]; end,
+			"not in itemsets", "in an itemset" },
+	{ function( link ) iName = GetItemInfo( link ); return not string.find( iName, "Tabard" ); end, "not a Tabard", "is a Tabard" },
+}
 function UnusedGear.ForAllGear( action, message )
-	-- work through all the items
+	-- work through all the times
 	moveCount = 0
 	for bag = 0, 4 do
-		if GetContainerNumSlots( bag ) > 0 then -- This slot has a bag
-			if not GetBagSlotFlag( bag, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP ) then
+		if GetContainerNumSlots( bag ) > 0 then  -- This slot has a bag
+			if not GetBagSlotFlag( bag, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP ) then  -- this bag is not ignored
 				for slot = 0, GetContainerNumSlots( bag ) do -- work through this bag
+					itemLog = {}
+					toMove, moved = true, false  -- assume to moved
 					local texture, itemCount, locked, quality, readable, lootable, link =
 							GetContainerItemInfo( bag, slot )
-					if( quality ) then
-						iArmorType = nil
-						local iName, iLink, iRarity, iLevel, iMinLevel, iType, iSubType, iStackCount, iEquipLoc,
-								iTexture, iSellPrice = GetItemInfo( link )
-						if iLink then
-							--UnusedGear.Print( "iLink: "..iLink )
-							iID = UnusedGear.GetItemIdFromLink( iLink )
-							if iID then
-								iID = tonumber( iID )
-								iArmorType = UnusedGear.armorTypes[ iSubType ]
-								--UnusedGear.Print( "Look at "..iID..": r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-								if( iRarity < 6 and ( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" ) ) then
-									-- 6 is Legandary, 7 is heirloom
-									if( not UnusedGear.itemsInSets[ iID ] and not string.find( iName, "Tabard" ) ) then
-										--UnusedGear.Print( "q: "..quality.." r: "..iRarity.." "..iType.."("..iSubType..") "..link )
-										--UnusedGear.Print( "MOVE: "..link )
-										targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
-										if( targetBagID ) then
-											ClearCursor()
-											PickupContainerItem( bag, slot )
-											if( targetBagID == 0 ) then
-												PutItemInBackpack()
-												moveCount = moveCount + 1
-											else
-												PutItemInBag( targetBagID+19 )
-											end
-										end
-									end
-								end
+					if( link ) then  -- only do work with slots that have items
+						test = 1
+						while( toMove and test <= #moveTests ) do
+							testStruct = moveTests[test]
+							testResult = testStruct[1]( link )
+							toMove = toMove and testResult  -- any failure will set this to false
+							testLog = testStruct[ testResult and 2 or 3 ]
+							if testLog then table.insert( itemLog, testStruct[ testResult and 2 or 3 ] ) end
+							--print( test..":"..(toMove and "True" or "False" ) )
+							test = test + 1
+						end
+					end
+					if toMove then
+						targetBagID, targetSlot = UnusedGear.GetLastFreeSlotInBag( UnusedGear_Options.targetBag )
+						if( targetBagID ) then
+							ClearCursor()
+							PickupContainerItem( bag,  slot )
+							if( targetBagID == 0 ) then
+								PutItemInBackpack()
+								table.insert( itemLog, "Moved to Backpack" )
+							else
+								PutItemInBag( targetBagID + 19 )
+								table.insert( itemLog, "Moved to bag:"..targetBagID )
 							end
+							moveCount = moveCount + 1
+							moved = true
+						end
+					end
+					if( link ) then
+						UnusedGear.myItemLog[link] = UnusedGear.myItemLog[link] or { ["countMoved"] = 0 }
+
+						if( UnusedGear.myItemLog[link].countMoved > 20 ) then
+							table.insert( itemLog, "moved many times.\nI'm ignoring this item in the future.")
+							UnusedGear_savedata.ignoreItems[link] = time()
+						end
+						UnusedGear.myItemLog[link]["log"] = table.concat( itemLog, "; " )
+						UnusedGear.myItemLog[link]["lastSeen"] = time()
+						if moved then
+							UnusedGear.myItemLog[link]["lastMoved"] = time()
+							UnusedGear.myItemLog[link]["countMoved"] = UnusedGear.myItemLog[link].countMoved + 1
 						end
 					end
 				end
@@ -174,105 +235,50 @@ function UnusedGear.GetLastFreeSlotInBag( bagID )
 		end
 	end
 end
+function UnusedGear.hookSetItem( tooltip, ... ) -- is passed the tooltip frame as a table
+	local item, link = tooltip:GetItem()  -- name, link
+	if( UnusedGear.myItemLog[link] and UnusedGear.myItemLog[link].log ) then
+		tooltip:AddDoubleLine( UnusedGear.myItemLog[link].log, "Moved:"..UnusedGear.myItemLog[link].countMoved )
+	end
+end
+
 
 --[[
-function Stripper.RemoveFromSlot( slotName, report )
-	-- Remove an item from slotName with optional reporting
-	-- String: slotName to remove an item from
-	-- Boolean: report - to report or not.
-	ClearCursor()
-	local freeBagId = Stripper.getFreeBag()
-	--Stripper.Print("Found a free bag: "..freeBagId);
-
-	if freeBagId then
-		local slotNum = GetInventorySlotInfo( slotName )
-		--Stripper.Print(slotName..":"..slotNum..":"..(GetInventoryItemLink("player",slotNum) or "nil"))
-		if report then
-			Stripper.Print( "Removing "..(GetInventoryItemLink("player",slotNum) or "nil") )
-		end
-		PickupInventoryItem(slotNum)
-		PickupContainerItem( bagID, slot )
-		if freeBagId == 0 then
-			PutItemInBackpack()
-		else
-			PutItemInBag(freeBagId+19)
-		end
-		return true
-	else
-		if report then
-			Stripper.Print("No more stripping for you.  Inventory is full");
-		end
-	end
-end
-function Stripper.getFreeBag()
-	-- http://www.wowwiki.com/BagId
-	-- bags are 0 based, right to left.  0 = backpack
-	local freeSlots, typeid, firstFreeBag, firstFreeEquipmentBag
-	for bagid = NUM_BAG_SLOTS, 0, -1 do
-		freeSlots, typeid = GetContainerNumFreeSlots(bagid)
-		isEquipmentBag = GetBagSlotFlag( bagid, LE_BAG_FILTER_FLAG_EQUIPMENT )
-		--print( "bag: "..bagid.." isType: "..typeid.." free: "..freeSlots.." isEquipmentBag: "..( isEquipmentBag and "True" or "False" ) )
-		if( typeid == 0 ) then  -- 0 = no special bag type ( Herb, mine, fishing, etc... )
-			if( not firstFreeBag ) then
-				firstFreeBag = ( not isEquipmentBag and freeSlots > 0 ) and bagid
-			end
-			if( not firstFreeEquipmentBag ) then
-				firstFreeEquipmentBag = ( isEquipmentBag and freeSlots > 0 ) and bagid
-			end
-		end
-	end
-	if( firstFreeEquipmentBag and firstFreeEquipmentBag >= 0 ) then
-		--print( "returning firstFreeEquipmentBag: "..firstFreeEquipmentBag )
-		return firstFreeEquipmentBag
-	end
-	if( firstFreeBag and firstFreeBag >=0 ) then
-		--print( "returning firstFreeBag: "..firstFreeBag )
-		return firstFreeBag
-	end
-end
-
-
-
-function AP.ForAllJunk(action, message)
-	local total_value = 0;
-	for bag = 0, 4 do
-		if GetContainerNumSlots(bag) > 0 then
-			for slot = 0, GetContainerNumSlots(bag) do
-				local texture, itemCount, locked, quality, readable, _, link =
-						GetContainerItemInfo(bag, slot);
-				if (quality) then
-					local sell = AP.Sell(link);
-					if (sell and autoProfitOptions["autoSell"] == 1) then
-						--ap.Print(bag..":"..slot..":"..itemCount.."x"..link);
-						--ap.Print("Sell this");
-						if (message and autoProfitOptions["autoAnnounce"] == 1) then
-							AP.Print(message(bag, slot));
-						end
-						total_value = total_value + (action(bag, slot) * itemCount);
-					end
-				end
-
-			end -- for slot
-		end -- if bag
-	end -- for bag
-	return total_value;
-end
-
-function AP.SellJunk()
-	local total_sold = AP.ForAllJunk(
-		function(bag, slot)  -- action
-			local _, _, _, _, _, _, link = GetContainerItemInfo(bag, slot);
-			local _,_, _, _, _, _, _, _, _, _, vendorPrice = GetItemInfo(link);
-			UseContainerItem(bag, slot);
-			return vendorPrice;
-		end,
-		function(bag, slot)
-			return "Sold " .. GetContainerItemLink(bag, slot);
-		end);
-	if (total_sold>0 and autoProfitOptions["autoAnnounce"] == 1 and autoProfitOptions["autoSell"] == 1) then
-		AP.Print("Profit", AP.MoneyFormat(total_sold));
-	end
-end
-
+function INEED.hookSetItem(tooltip, ...)  -- is passed the tooltip frame as a table
+	local item, link = tooltip:GetItem()  -- name, link
+	local itemID = INEED.getItemIdFromLink( link )
 ]]
+--[[
+	local tooltipName = tooltip:GetName()
+	local tooltipLine2 = _G[tooltipName.."TextLeft2"]
+	local tooltipLine3 = _G[tooltipName.."TextLeft3"]
+	local tooltipLine4 = _G[tooltipName.."TextLeft4"]
+	local BindTypes = {
+		[ITEM_SOULBOUND] = "Bound",
+		[ITEM_BIND_ON_PICKUP] = "Bound",
+	}
 
+
+	INEED.Print( "tooltip:name = "..( tooltipName or "unknown" ).." "..
+			( ( BindTypes[tooltipLine2:GetText()] or BindTypes[tooltipLine3:GetText()] or BindTypes[tooltipLine4:GetText()] ) and "isBound" or "isNotBound" ) )
+]]
+	-- local ScanTip2 = _G["AppraiserTipTextLeft2"]
+	--.." "..ITEM_SOULBOUND.." "..ITEM_BIND_ON_PICKUP )
+	-- INEED.Print("item: "..(item or "nil").." ID: "..itemID)
+--[[
+	if itemID and INEED_data[itemID] then
+		for realm in pairs(INEED_data[itemID]) do
+			if realm == INEED.realm then
+				for name, data in pairs(INEED_data[itemID][realm]) do
+					tooltip:AddDoubleLine(string.format("%s", name),
+							string.format("Needs: %i / %i", data.total + (data.inMail or 0), data.needed) )
+				end
+			end
+		end
+	end
+end
+
+ONLOAD
+
+G
+]]
