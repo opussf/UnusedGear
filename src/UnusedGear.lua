@@ -196,7 +196,7 @@ function UnusedGear.ForAllGear( action, message )
 
 						if( UnusedGear.myItemLog[link].countMoved > 20 ) then
 							table.insert( itemLog, "moved many times.\nI'm ignoring this item in the future.")
-							UnusedGear_savedata.ignoreItems[link] = time()
+							UnusedGear.myIgnoreItems[link] = time()
 						end
 						UnusedGear.myItemLog[link]["log"] = table.concat( itemLog, "; " )
 						UnusedGear.myItemLog[link]["lastSeen"] = time()
