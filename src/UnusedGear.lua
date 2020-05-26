@@ -138,7 +138,6 @@ function UnusedGear.BuildGearSets()
 		end
 	end
 end
-
 -- moveTests { testfunction, truthmessage, falsemessage }
 moveTests = {
 	{ function( link ) return not UnusedGear.myIgnoreItems[link]; end, nil, "Ignored" },
