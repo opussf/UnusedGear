@@ -147,10 +147,10 @@ moveTests = {
 			_, _, _, _, _, iType, iSubType = GetItemInfo( link )
 			iArmorType = UnusedGear.armorTypes[ iSubType ]
 			return( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" )
-		end, "Armor, weapon, or shield", "non equipable item" },
+		end, "Armor, weapon, or shield", nil }, --"non equipable item" },
 	{ function( link ) iID = tonumber( UnusedGear.GetItemIdFromLink( link ) ); return not UnusedGear.itemsInSets[ iID ]; end,
 			"not in itemsets", "in an itemset" },
-	{ function( link ) iName = GetItemInfo( link ); return not string.find( iName, "Tabard" ); end, "not a Tabard", "is a Tabard" },
+	{ function( link ) iName = GetItemInfo( link ); return not string.find( iName, "Tabard" ); end, nil, nil }, --"not a Tabard", "is a Tabard" },
 }
 function UnusedGear.ForAllGear( action, message )
 	-- work through all the times
