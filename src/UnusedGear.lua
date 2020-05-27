@@ -76,6 +76,9 @@ function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "PLAYER_LEAVING_WORLD" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
+	SLASH_UNUSEDGEAR1 = "/UG"
+	SLASH_UNUSEDGEAR2 = "/UNUSEDGEAR"
+	SlashCmdList["UNUSEDGEAR"] = function( msg ) UnusedGear.Command( msg ); end
 
 	--AutoProfit:RegisterEvent("MERCHANT_CLOSED");
 	--ap.ForAllJunk();
@@ -137,6 +140,18 @@ function UnusedGear.BuildGearSets()
 				end
 				table.insert( UnusedGear.itemsInSets[ itemID ], equipmentSetName )
 			end
+		end
+	end
+end
+function UnusedGear.Command( msg )
+	if( msg ) then
+		local itemID = UnusedGear.GetItemIdFromLink( msg )
+		if itemID then
+			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
+		end
+		if( string.lower( msg ) == "reset" ) then
+			UnusedGear.myIgnoreItems = {}
+			UnusedGear.myItemLog = {}
 		end
 	end
 end
