@@ -106,7 +106,8 @@ function UnusedGear.VARIABLES_LOADED()
 end
 function UnusedGear.PLAYER_LEAVING_WORLD()
 	for link, item in pairs( UnusedGear.myItemLog ) do
-		if( ( item.lastSeen and item.lastSeen+3600 < time() ) or not item.lastSeen ) then -- one hour expire
+		if( ( item.lastSeen and item.lastSeen+1 < UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow )
+				or not item.lastSeen ) then
 			UnusedGear.myItemLog[link] = nil
 		end
 	end
@@ -115,6 +116,7 @@ function UnusedGear.MERCHANT_SHOW()
 	--UnusedGear.Print( "MERCHANT_SHOW" )
 	UnusedGear.BuildGearSets()
 	UnusedGear.ExtractItems()
+	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow = time()
 end
 UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
 UnusedGear.AUCTION_HOUSE_SHOW = UnusedGear.MERCHANT_SHOW
