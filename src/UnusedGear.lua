@@ -148,8 +148,10 @@ function UnusedGear.Command( msg )
 		local itemID = UnusedGear.GetItemIdFromLink( msg )
 		if itemID then
 			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
+			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
 		end
 		if( string.lower( msg ) == "reset" ) then
+			UnusedGear.Print( string.format( "Performing reset for %s:%s", UnusedGear.name, UnusedGear.realm ) )
 			UnusedGear.myIgnoreItems = {}
 			UnusedGear.myItemLog = {}
 		end
