@@ -76,6 +76,9 @@ function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "PLAYER_LEAVING_WORLD" )
 	local localizedClass, englishClass, classIndex = UnitClass( "player" )
 	UnusedGear.maxArmorType = UnusedGear.armorTypes[ UnusedGear.maxArmorTypeByClass[ englishClass ] ]
+	SLASH_UNUSEDGEAR1 = "/UG"
+	SLASH_UNUSEDGEAR2 = "/UNUSEDGEAR"
+	SlashCmdList["UNUSEDGEAR"] = function( msg ) UnusedGear.Command( msg ); end
 
 	--AutoProfit:RegisterEvent("MERCHANT_CLOSED");
 	--ap.ForAllJunk();
@@ -105,8 +108,9 @@ function UnusedGear.VARIABLES_LOADED()
 	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
 end
 function UnusedGear.PLAYER_LEAVING_WORLD()
+	local lastMerchantShow = ( UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow-1 or time() - 3600 )
 	for link, item in pairs( UnusedGear.myItemLog ) do
-		if( ( item.lastSeen and item.lastSeen+3600 < time() ) or not item.lastSeen ) then -- one hour expire
+		if( ( item.lastSeen and item.lastSeen < lastMerchantShow ) or not item.lastSeen ) then
 			UnusedGear.myItemLog[link] = nil
 		end
 	end
@@ -115,6 +119,7 @@ function UnusedGear.MERCHANT_SHOW()
 	--UnusedGear.Print( "MERCHANT_SHOW" )
 	UnusedGear.BuildGearSets()
 	UnusedGear.ExtractItems()
+	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow = time()
 end
 UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
 UnusedGear.AUCTION_HOUSE_SHOW = UnusedGear.MERCHANT_SHOW
@@ -135,6 +140,20 @@ function UnusedGear.BuildGearSets()
 				end
 				table.insert( UnusedGear.itemsInSets[ itemID ], equipmentSetName )
 			end
+		end
+	end
+end
+function UnusedGear.Command( msg )
+	if( msg ) then
+		local itemID = UnusedGear.GetItemIdFromLink( msg )
+		if itemID then
+			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
+			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
+		end
+		if( string.lower( msg ) == "reset" ) then
+			UnusedGear.Print( string.format( "Performing reset for %s:%s", UnusedGear.name, UnusedGear.realm ) )
+			UnusedGear.myIgnoreItems = {}
+			UnusedGear.myItemLog = {}
 		end
 	end
 end
