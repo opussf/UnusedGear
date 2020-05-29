@@ -160,7 +160,7 @@ end
 -- moveTests { testfunction, truthmessage, falsemessage }
 moveTests = {
 	{ function( link ) return not UnusedGear.myIgnoreItems[link]; end, nil, "Ignored" },
-	{ function( link ) _, _, iRarity = GetItemInfo( link ); return iRarity < 6; end, nil, "Rarity is too high" },
+	{ function( link ) _, _, iRarity = GetItemInfo( link ); return( iRarity and iRarity < 6 ); end, nil, "Rarity is too high" },
 	{ function( link )
 			_, _, _, _, _, iType, iSubType = GetItemInfo( link )
 			iArmorType = UnusedGear.armorTypes[ iSubType ]
