@@ -108,7 +108,8 @@ function UnusedGear.VARIABLES_LOADED()
 	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
 end
 function UnusedGear.PLAYER_LEAVING_WORLD()
-	local lastMerchantShow = ( UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow-1 or time() - 3600 )
+	local lastMerchantShow = ( UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow and
+			UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow-1 or time() - 3600 )
 	for link, item in pairs( UnusedGear.myItemLog ) do
 		if( ( item.lastSeen and item.lastSeen < lastMerchantShow ) or not item.lastSeen ) then
 			UnusedGear.myItemLog[link] = nil
