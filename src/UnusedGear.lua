@@ -117,7 +117,6 @@ function UnusedGear.PLAYER_LEAVING_WORLD()
 	end
 end
 function UnusedGear.MERCHANT_SHOW()
-	--UnusedGear.Print( "MERCHANT_SHOW" )
 	UnusedGear.BuildGearSets()
 	UnusedGear.ExtractItems()
 	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow = time()
@@ -189,13 +188,11 @@ function UnusedGear.Command( msg )
 	if cmdFunc then
 		cmdFunc.func( param )
 	else
-		print( "msg: "..( msg or "nil" ) )
 		local itemID = UnusedGear.GetItemIdFromLink( msg )
 		if( itemID ) then
 			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
 			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
 		else
-			print( "else:" )
 			UnusedGear.PrintHelp()
 		end
 	end
@@ -234,7 +231,6 @@ function UnusedGear.ForAllGear( action, message )
 							toMove = toMove and testResult  -- any failure will set this to false
 							testLog = testStruct[ testResult and 2 or 3 ]
 							if testLog then table.insert( itemLog, testStruct[ testResult and 2 or 3 ] ) end
-							--print( test..":"..(toMove and "True" or "False" ) )
 							test = test + 1
 						end
 					end
