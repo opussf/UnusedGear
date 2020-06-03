@@ -1,6 +1,6 @@
-UNUSEDGEAR_MSG_ADDONNAME = "UnusedGear";
-UNUSEDGEAR_MSG_VERSION   = GetAddOnMetadata(UnusedGear_MSG_ADDONNAME,"Version");
-UNUSEDGEAR_MSG_AUTHOR    = "opussf";
+UNUSEDGEAR_MSG_ADDONNAME = "UnusedGear"
+UNUSEDGEAR_MSG_VERSION   = GetAddOnMetadata( UNUSEDGEAR_MSG_ADDONNAME,"Version" )
+UNUSEDGEAR_MSG_AUTHOR    = "opussf"
 
 -- Colours
 COLOR_RED = "|cffff0000";
