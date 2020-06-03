@@ -189,13 +189,13 @@ function UnusedGear.Command( msg )
 	if cmdFunc then
 		cmdFunc.func( param )
 	else
-		if( msg ) then
-			local itemID = UnusedGear.GetItemIdFromLink( msg )
-			if( itemID ) then
-				UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
-				UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
-			end
+		print( "msg: "..( msg or "nil" ) )
+		local itemID = UnusedGear.GetItemIdFromLink( msg )
+		if( itemID ) then
+			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
+			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
 		else
+			print( "else:" )
 			UnusedGear.PrintHelp()
 		end
 	end
