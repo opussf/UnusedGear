@@ -108,7 +108,8 @@ function UnusedGear.VARIABLES_LOADED()
 	UnusedGear.myIgnoreItems = UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].ignoreItems
 end
 function UnusedGear.PLAYER_LEAVING_WORLD()
-	local lastMerchantShow = ( UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow-1 or time() - 3600 )
+	local lastMerchantShow = ( UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow and
+			UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow-1 or time() - 3600 )
 	for link, item in pairs( UnusedGear.myItemLog ) do
 		if( ( item.lastSeen and item.lastSeen < lastMerchantShow ) or not item.lastSeen ) then
 			UnusedGear.myItemLog[link] = nil
@@ -166,6 +167,8 @@ moveTests = {
 			iArmorType = UnusedGear.armorTypes[ iSubType ]
 			return( ( iType == "Armor" and iArmorType ) or iType == "Weapon" or iSubType == "Shields" )
 		end, "Armor, weapon, or shield", nil }, --"non equipable item" },
+	{ function( link ) _, _, _, _, itemMinLevel = GetItemInfo( link ); return( itemMinLevel <= UnitLevel( "player" ) ); end,
+			"item can be used", "item too high to use" },
 	{ function( link ) iID = tonumber( UnusedGear.GetItemIdFromLink( link ) ); return not UnusedGear.itemsInSets[ iID ]; end,
 			"not in itemsets", "in an itemset" },
 	{ function( link ) iName = GetItemInfo( link ); return not string.find( iName, "Tabard" ); end, nil, nil }, --"not a Tabard", "is a Tabard" },
