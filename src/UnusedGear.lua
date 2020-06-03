@@ -1,6 +1,6 @@
-UnusedGear_MSG_ADDONNAME = "UnusedGear";
-UnusedGear_MSG_VERSION   = GetAddOnMetadata(UnusedGear_MSG_ADDONNAME,"Version");
-UnusedGear_MSG_AUTHOR    = "opussf";
+UNUSEDGEAR_MSG_ADDONNAME = "UnusedGear";
+UNUSEDGEAR_MSG_VERSION   = GetAddOnMetadata(UnusedGear_MSG_ADDONNAME,"Version");
+UNUSEDGEAR_MSG_AUTHOR    = "opussf";
 
 -- Colours
 COLOR_RED = "|cffff0000";
@@ -61,7 +61,7 @@ function UnusedGear.Print( msg, showName)
 	-- print to the chat frame
 	-- set showName to false to suppress the addon name printing
 	if (showName == nil) or (showName) then
-		msg = COLOR_GREEN..UnusedGear_MSG_ADDONNAME.."> "..COLOR_END..msg
+		msg = COLOR_GREEN..UNUSEDGEAR_MSG_ADDONNAME.."> "..COLOR_END..msg
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
@@ -144,17 +144,59 @@ function UnusedGear.BuildGearSets()
 		end
 	end
 end
-function UnusedGear.Command( msg )
-	if( msg ) then
-		local itemID = UnusedGear.GetItemIdFromLink( msg )
-		if itemID then
-			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
-			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
+function UnusedGear.Reset()
+	UnusedGear.Print( string.format( "Performing reset for %s:%s", UnusedGear.name, UnusedGear.realm ) )
+	UnusedGear.myIgnoreItems = {}
+	UnusedGear.myItemLog = {}
+end
+-- Command code
+function UnusedGear.PrintHelp()
+	UnusedGear.Print( UNUSEDGEAR_MSG_ADDONNAME.." version: "..UNUSEDGEAR_MSG_VERSION )
+	UnusedGear.Print( "Use: /UG or /UNUSEDGEAR for these commands: ")
+
+	for cmd, info in pairs( UnusedGear.commandList ) do
+		UnusedGear.Print( string.format( "-- %s %s -> %s",
+				cmd, info.help[1], info.help[2] ) )
+	end
+end
+UnusedGear.commandList = {
+	["help"] = {
+		["func"] = UnusedGear.PrintHelp,
+		["help"] = { "", "Print this help" },
+	},
+	["reset"] = {
+		["func"] = UnusedGear.Reset,
+		["help"] = { "", "Reset "..UNUSEDGEAR_MSG_ADDONNAME.." for this char." },
+	},
+	["<ItemLink>"] = {
+		["help"] = { "", "Toggle ignoring <ItemLink>" },
+	},
+}
+function UnusedGear.ParseCmd( msg )
+	if msg then
+		local a,b,c = strfind(msg, "(%S+)")  --contiguous string of non-space characters
+		if a then
+			return c, strsub(msg, b+2)
+		else
+			return ""
 		end
-		if( string.lower( msg ) == "reset" ) then
-			UnusedGear.Print( string.format( "Performing reset for %s:%s", UnusedGear.name, UnusedGear.realm ) )
-			UnusedGear.myIgnoreItems = {}
-			UnusedGear.myItemLog = {}
+	end
+end
+function UnusedGear.Command( msg )
+	local cmd, param = UnusedGear.ParseCmd( msg )
+	cmd = string.lower( cmd )
+	local cmdFunc = UnusedGear.commandList[cmd]
+	if cmdFunc then
+		cmdFunc.func( param )
+	else
+		if( msg ) then
+			local itemID = UnusedGear.GetItemIdFromLink( msg )
+			if( itemID ) then
+				UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
+				UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
+			end
+		else
+			UnusedGear.PrintHelp()
 		end
 	end
 end
