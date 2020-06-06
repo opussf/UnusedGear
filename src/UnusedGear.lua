@@ -190,7 +190,7 @@ function UnusedGear.Command( msg )
 	else
 		local itemID = UnusedGear.GetItemIdFromLink( msg )
 		if( itemID ) then
-			UnusedGear.myIgnoreItems[itemID] = UnusedGear.myIgnoreItems[itemID] and nil or true
+			UnusedGear.myIgnoreItems[itemID] = not UnusedGear.myIgnoreItems[itemID]
 			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[itemID] and "" or "not " ) ) )
 		else
 			UnusedGear.PrintHelp()
