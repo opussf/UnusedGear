@@ -190,8 +190,8 @@ function UnusedGear.Command( msg )
 	else
 		local itemID = UnusedGear.GetItemIdFromLink( msg )
 		if( itemID ) then
-			UnusedGear.myIgnoreItems[msg] = UnusedGear.myIgnoreItems[msg] and nil or true
-			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[msg] and "" or "not " ) ) )
+			UnusedGear.myIgnoreItems[itemID] = UnusedGear.myIgnoreItems[itemID] and nil or true
+			UnusedGear.Print( string.format( "%s is %sbeing ignored.", msg, ( UnusedGear.myIgnoreItems[itemID] and "" or "not " ) ) )
 		else
 			UnusedGear.PrintHelp()
 		end
@@ -199,7 +199,7 @@ function UnusedGear.Command( msg )
 end
 -- moveTests { testfunction, truthmessage, falsemessage }
 moveTests = {
-	{ function( link ) return not UnusedGear.myIgnoreItems[link]; end, nil, "Ignored" },
+	{ function( link ) local itemID = UnusedGear.GetItemIdFromLink(link); return not UnusedGear.myIgnoreItems[itemID]; end, nil, "Ignored" },
 	{ function( link ) _, _, iRarity = GetItemInfo( link ); return( iRarity and iRarity < 6 ); end, nil, "Rarity is too high" },
 	{ function( link )
 			_, _, _, _, _, iType, iSubType = GetItemInfo( link )
@@ -257,7 +257,8 @@ function UnusedGear.ForAllGear( action, message )
 							table.insert( itemLog,
 									string.format( "moved many times.\nI'm ignoring this item in the future.\nUse %s %s to toggle ignoring of this item",
 										SLASH_UNUSEDGEAR1, link ) )
-							UnusedGear.myIgnoreItems[link] = time()
+							local itemID = UnusedGear.GetItemIdFromLink( link )
+							UnusedGear.myIgnoreItems[itemID] = time()
 						end
 						UnusedGear.myItemLog[link]["log"] = table.concat( itemLog, "; " )
 						UnusedGear.myItemLog[link]["lastSeen"] = time()
