@@ -16,7 +16,8 @@ COLOR_END = "|r";
 
 UnusedGear = {}
 UnusedGear_Options = {
-	["targetBag"] = 0
+	["targetBag"] = 0,
+	["moveLimit"] = 20,
 }
 UnusedGear_savedata = {}
 -- itemLog = { link = { log, movedCount, lastMoved } }
@@ -253,7 +254,7 @@ function UnusedGear.ForAllGear( action, message )
 					if( link ) then
 						UnusedGear.myItemLog[link] = UnusedGear.myItemLog[link] or { ["countMoved"] = 0 }
 
-						if( UnusedGear.myItemLog[link].countMoved > 20 ) then
+						if( UnusedGear.myItemLog[link].countMoved >= UnusedGear_Options.moveLimit ) then
 							table.insert( itemLog,
 									string.format( "moved many times.\nI'm ignoring this item in the future.\nUse %s %s to toggle ignoring of this item",
 										SLASH_UNUSEDGEAR1, link ) )
