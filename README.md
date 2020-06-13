@@ -6,10 +6,10 @@ This addon moves gear to a specified bag (defaults to backpack), based on if the
 
 ## Description
 
-The idea of this addon is to find equipment items in your bags that are not being used, and help you find old or unused items to discard / scrap / mail to others.
+The idea of this addon is to find equipment items in your bags that are not being used, and help you to discard / scrap / mail to others.
 
 
-Theaddon will move gear to your backpack that is not currently being used.  "Being used" includes items in gear sets defined in the equipment manager.
+The addon will move gear that is not currently being used to your backpack.  "Being used" includes items in gear sets defined in the equipment manager.
 
 
 Items moved too many times will be ignored.  Bags that are ignored (cleanup: Ignore this bag) will not be searched for items to move.
