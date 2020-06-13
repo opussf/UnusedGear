@@ -15,6 +15,15 @@ The addon will move gear that is not currently being used to your backpack.  "Be
 Items moved too many times will be ignored.  Bags that are ignored (cleanup: Ignore this bag) will not be searched for items to move.
 
 
+Usage:
+
+
+When you open a vendor, your bank, or the scrapping machine, any unused items in your inventory will be moved to your backpack.
+
+Set the status of a bag to "ignore this bag" to keep that bag from being searched for items, or "/ug [item link]" an item to ignore that item.
+
+
+
 ## Idea:
 I'm always trying to figure out the gear I can 'safely' sell.
 Am I still using it, is it in a gear set?
