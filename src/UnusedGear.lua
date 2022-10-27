@@ -68,7 +68,7 @@ function UnusedGear.Print( msg, showName)
 end
 function UnusedGear.OnLoad()
 	UnusedGear_Frame:RegisterEvent( "MERCHANT_SHOW" )
-	UnusedGear_Frame:RegisterEvent( "SCRAPPING_MACHINE_SHOW" )
+	--UnusedGear_Frame:RegisterEvent( "SCRAPPING_MACHINE_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "EQUIPMENT_SETS_CHANGED" )
 	UnusedGear_Frame:RegisterEvent( "AUCTION_HOUSE_SHOW" )
 	UnusedGear_Frame:RegisterEvent( "BANKFRAME_OPENED" )
@@ -122,7 +122,7 @@ function UnusedGear.MERCHANT_SHOW()
 	UnusedGear.ExtractItems()
 	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow = time()
 end
-UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
+--UnusedGear.SCRAPPING_MACHINE_SHOW = UnusedGear.MERCHANT_SHOW
 UnusedGear.AUCTION_HOUSE_SHOW = UnusedGear.MERCHANT_SHOW
 UnusedGear.BANKFRAME_OPENED = UnusedGear.MERCHANT_SHOW
 
@@ -218,7 +218,7 @@ function UnusedGear.ForAllGear( action, message )
 	moveCount = 0
 	for bag = 0, 4 do
 		if GetContainerNumSlots( bag ) > 0 then  -- This slot has a bag
-			if not GetBagSlotFlag( bag, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP ) then  -- this bag is not ignored
+			--if not GetBagSlotFlag( bag, LE_BAG_FILTER_FLAG_IGNORE_CLEANUP ) then  -- this bag is not ignored
 				for slot = 0, GetContainerNumSlots( bag ) do -- work through this bag
 					itemLog = {}
 					toMove, moved = true, false  -- assume to moved
@@ -269,7 +269,7 @@ function UnusedGear.ForAllGear( action, message )
 						end
 					end
 				end
-			end
+			--end
 		end
 	end
 end
