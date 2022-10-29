@@ -1,6 +1,6 @@
-## Title: Unused Gear v@VERSION@
+## Title: Unused Gear
 ## Interface: @INTERFACE@
-## Notes: Sort out unused gear. @VERSION@
+## Notes: Sort out unused gear. (@VERSION@)
 ## Author: opussf
 ## Version: @VERSION@
 ## Description: Sort out unused gear. @VERSION@
