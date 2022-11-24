@@ -543,6 +543,10 @@ end
 DEFAULT_CHAT_FRAME={ ["AddMessage"] = print, }
 UIErrorsFrame={ ["AddMessage"] = print, }
 
+Enum = {}
+Enum.TooltipDataType = {}
+Enum.TooltipDataType.Item = 1
+
 -- stub some external API functions (try to keep alphabetical)
 function BuyMerchantItem( index, quantity )
 	-- adds quantity of index to myInventory
@@ -1467,6 +1471,9 @@ function UnitXP( who )
 end
 function UnitXPMax( who )
 	return 1000
+end
+TooltipDataProcessor = {}
+function TooltipDataProcessor.AddTooltipPostCall( a, b )
 end
 ---------  C_WowTokenPublic
 C_WowTokenPublic = {}

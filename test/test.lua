@@ -26,17 +26,17 @@ function test.after()
 end
 function test.test_Ignore_AddIgnore()
 	UnusedGear.Command( "|cff9d9d9d|Hitem:7073:0:0:0:0:0:0:0:80:0:0|h[Broken Fang]|h|r" )
-	assertTrue( UnusedGear.myIgnoreItems["7073"] )
+	assertTrue( UnusedGear.myIgnoreItems[7073] )
 end
 function test.test_Ignore_RemoveIgnore_date()
-	UnusedGear.myIgnoreItems["7073"] = 872364
+	UnusedGear.myIgnoreItems[7073] = 872364
 	UnusedGear.Command( "|cff9d9d9d|Hitem:7073:0:0:0:0:0:0:0:80:0:0|h[Broken Fang]|h|r" )
-	assertIsNil( UnusedGear.myIgnoreItems["7073"] )
+	assertIsNil( UnusedGear.myIgnoreItems[7073] )
 end
 function test.test_Ignore_RemoveIgnore_boolean()
-	UnusedGear.myIgnoreItems["7073"] = true
+	UnusedGear.myIgnoreItems[7073] = true
 	UnusedGear.Command( "|cff9d9d9d|Hitem:7073:0:0:0:0:0:0:0:80:0:0|h[Broken Fang]|h|r" )
-	assertIsNil( UnusedGear.myIgnoreItems["7073"] )
+	assertIsNil( UnusedGear.myIgnoreItems[7073] )
 end
 
 --[[
