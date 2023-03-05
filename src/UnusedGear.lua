@@ -118,6 +118,16 @@ function UnusedGear.PLAYER_LEAVING_WORLD()
 	end
 end
 function UnusedGear.MERCHANT_SHOW()
+	local highestBagNumber = 0
+	for bag = 0, NUM_BAG_SLOTS do
+		if C_Container.GetContainerNumSlots( bag ) > 0 then
+			highestBagNumber = max( highestBagNumber, bag )
+		end
+	end
+
+	-- GetSortBagsRightToLeft is normally false
+	UnusedGear_Options.targetBag = C_Container.GetSortBagsRightToLeft() and highestBagNumber or 0
+
 	UnusedGear.BuildGearSets()
 	UnusedGear.ExtractItems()
 	UnusedGear_savedata[UnusedGear.realm][UnusedGear.name].lastMerchantShow = time()
