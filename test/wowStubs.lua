@@ -1,7 +1,7 @@
 -----------------------------------------
 -- Author  :  Opussf
--- Date    :  January 2 2023
--- Revision:  9.0.3-5-g5f3a636-100002
+-- Date    :  March 8 2023
+-- Revision:  9.0.3-6-gc0d8064-100002
 -----------------------------------------
 -- These are functions from wow that have been needed by addons so far
 -- Not a complete list of the functions.
@@ -794,6 +794,7 @@ end
 
 
 C_Container = {}
+C_Container.SortBagsRightToLeft = false -- this is normal
 function C_Container.GetContainerItemInfo( bagId, slotId )
 end
 function C_Container.GetContainerItemLink( bagId, slotId )
@@ -823,6 +824,9 @@ function C_Container.GetContainerNumSlots( bagId )
 	else
 		return 0
 	end
+end
+function C_Container.GetSortBagsRightToLeft()
+	return C_Container.SortBagsRightToLeft
 end
 function C_Container.UseContainerItem( bagId, slotId )
 end
@@ -1613,6 +1617,14 @@ function C_CurrencyInfo.GetCurrencyLink( id )
 	if Currencies[id] then
 		return Currencies[id].link
 	end
+end
+
+Enum = {}
+Enum.TooltipDataType = {}
+Enum.TooltipDataType.Item = 0
+
+TooltipDataProcessor = {}
+function TooltipDataProcessor.AddTooltipPostCall()
 end
 
 -----------------------------------------
