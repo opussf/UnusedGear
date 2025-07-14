@@ -283,7 +283,7 @@ function UnusedGear.ForAllGear( action, message )
 								SLASH_UNUSEDGEAR1, itemStruct.hyperlink ) )
 					UnusedGear.myIgnoreItems[tonumber( itemStruct.itemID )] = time()
 				end
-				UnusedGear.myItemLog[itemStruct.itemID]["log"] = table.concat( itemLog, "; " )
+				UnusedGear.myItemLog[itemStruct.itemID]["log"] = table.concat( itemLog, "\n" )
 				UnusedGear.myItemLog[itemStruct.itemID]["lastSeen"] = time()
 				UnusedGear.myItemLog[itemStruct.itemID]["link"] = itemStruct.hyperlink
 				if moved then
