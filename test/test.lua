@@ -6,6 +6,8 @@ addonData = { ["Version"] = "1.0",
 require "wowTest"
 
 test.outFileName = "testOut.xml"
+test.coberturaFileName = "../coverage.xml"
+test.coverageReportPercent = true
 
 -- Figure out how to parse the XML here, until then....
 
